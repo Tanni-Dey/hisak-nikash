@@ -34,6 +34,27 @@ async function run() {
       res.send(allProduct);
     });
 
+    // add new product
+    app.post("/products", async (req, res) => {
+      const newProduct = req.body;
+      const product = await productsCollection.findOne({
+        productName: newProduct.productName,
+      });
+      if (!product) {
+        const addProduct = await productsCollection.insertOne(newProduct);
+        if (addProduct.insertedId) {
+          res.send({
+            status: "Successfully Added Product",
+            product: addProduct,
+          });
+        } else {
+          res.send({ status: "Product Not Added" });
+        }
+      } else {
+        res.send({ status: "Already have the Product" });
+      }
+    });
+
     // create new user
     app.post("/users", async (req, res) => {
       const newUser = req.body;
@@ -45,31 +66,6 @@ async function run() {
         res.send({ status: "Already have this user" });
       }
     });
-
-    // add new product
-    // app.post("/products", async (req, res) => {
-    //   const newProducts = req.body;
-    //   const product = await productsCollection.findOne({
-    //     recipeName: newRecipe.recipeName,
-    //   });
-    //   if (!recipe) {
-    //     const addRecipe = await productsCollection.insertOne(newRecipe);
-    //     if (addRecipe.insertedId) {
-    //       const user = await userCollection.findOne({
-    //         email: newRecipe.creatorEmail,
-    //       });
-    //       await userCollection.updateOne(
-    //         { email: newRecipe.creatorEmail },
-    //         {
-    //           $set: { coin: Number(user.coin) + 1 },
-    //         }
-    //       );
-    //     }
-    //     res.send({ status: "Successfully Added Product", product: addRecipe });
-    //   } else {
-    //     res.send({ status: "Already have Recipe" });
-    //   }
-    // });
 
     //get user by email
     app.get("/user", async (req, res) => {
