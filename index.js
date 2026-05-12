@@ -65,7 +65,11 @@ async function run() {
 
     // create new user
     app.post("/users", async (req, res) => {
-      const newUser = req.body;
+      const newUser = {
+        fullName: req.body.fullName,
+        email: req.body.email,
+        password: req.body.password,
+      };
       const user = await userCollection.findOne({ email: newUser.email });
       if (!user) {
         const addUser = await userCollection.insertOne(newUser);
@@ -77,9 +81,19 @@ async function run() {
 
     //get user by email
     app.get("/user", async (req, res) => {
-      const userEmail = req.query.email;
+      const userEmail = req.body.email;
+      const userPassword = req.body.password;
       const user = await userCollection.findOne({ email: userEmail });
-      res.send({ status: "success", user: user });
+      if (user) {
+        // console.log(user.email, user.password, userEmail, userPassword);
+        if (user.email == userEmail && user.password == userPassword) {
+          res.send({ status: "success", user: user });
+        } else {
+          res.send({ status: "User and password not matched" });
+        }
+      } else {
+        res.send({ status: "User not found" });
+      }
     });
   } finally {
   }
